@@ -9,6 +9,6 @@ area(X, Y) -> X * Y.
 
 %% @doc Calculates area for a given shape 
 %% (provided as a first atom argument).
-area(rectangle, X, Y) -> X * Y;
-area(triangle, X, Y) -> (X * Y) / 2.0;
-area(ellipse, X, Y) -> X * Y * math:pi().
+area(rectangle, X, Y) when X >= 0, Y >= 0 -> X * Y;
+area(triangle, X, Y) when X >= 0, Y >= 0 -> (X * Y) / 2.0;
+area(ellipse, X, Y) when X >= 0, Y >= 0 -> X * Y * math:pi().
