@@ -15,7 +15,9 @@ area({Shape, X, Y}) -> area(Shape, X, Y).
 
 %% @doc Calculates area for a given shape 
 %% (provided as a first atom argument).
-area(rectangle, X, Y) when X >= 0, Y >= 0 -> X * Y;
-area(triangle, X, Y) when X >= 0, Y >= 0 -> (X * Y) / 2.0;
-area(ellipse, X, Y) when X >= 0, Y >= 0 -> X * Y * math:pi();
-area(_, _, _) -> 0.
+area(Shape, X, Y) when X >= 0, Y >= 0 ->
+    case Shape of
+        rectangle -> X * Y;
+        triangle -> (X * Y) / 2.0;
+        ellipse -> X * Y * math:pi()
+    end.
