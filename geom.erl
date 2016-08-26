@@ -1,6 +1,6 @@
 %% @doc Functions for calculating geometrical formulas.
 -module (geom).
--export ([area/1, area/2]).
+-export ([area/1, area/2, area/3]).
 
 
 %% @doc Calculates the area of a rectangle, given
