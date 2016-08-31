@@ -3,7 +3,7 @@
 %% API
 -export([player/1, start/0]).
 
-%%% GAME
+%%% GAME TODO: make dealer actor.
 
 %% @doc Starts a game of war:
 %% 1. Shuffles deck
@@ -52,9 +52,12 @@ compare(A, B, ACards, BCards) ->
       turn(A, B, draw, 0, ACards, BCards)
   end.
 
-%% @doc Sends messages about winning and loosing.
+%% @doc End game function.
+%% Sends messages about win/lose and kills processes.
 win(X, Y) ->
-  X ! {self(), win}, Y ! {self(), lose}.
+  X ! {self(), win}, Y ! {self(), lose},
+  exit(X, kill), exit(Y, kill),
+  io:format("Game finished!~n").
 
 %%% PLAYERS
 
