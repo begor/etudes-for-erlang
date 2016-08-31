@@ -11,7 +11,7 @@
 %% 3. Give player a half of a deck
 %% 4. Proceeds to first turn
 start() ->
-  Deck = cards:shuffle(cards:make_deck()),
+  Deck = cards:shuffle(cards:make_small_deck()),
   {PlayerACards, PlayerBCards} = lists:split(length(Deck) div 2, Deck),
   PlayerA = spawn(?MODULE, player, [PlayerACards]),
   PlayerB = spawn(?MODULE, player, [PlayerBCards]),

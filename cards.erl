@@ -8,8 +8,8 @@ make_deck() ->
   [{R, S} || R <- Ranks, S <- Suits].
 
 make_small_deck() ->
-  Suits = ["Clubs", "Diamonds"],
-  Ranks = [2, 3, 4, 5],
+  Suits = ["Clubs", "Diamonds", "Hearts", "Spades"],
+  Ranks = [2, 3, "K", "A"],
   [{R, S} || R <- Ranks, S <- Suits].
 
 %% @doc Shuffles a list of cards.
