@@ -63,16 +63,15 @@ win(X, Y) ->
 
 %% @doc Player actor.
 player(Cards) ->
-  io:format("I am ~p, and I have ~p~n", [self(), Cards]),
   receive
     {From, turn} ->
       case Cards of
         [Card | Left] -> From ! {self(), [Card]}, player(Left);
-        [] -> From ! {self(), []}, player([])
+        [] -> io:format("Should be it!"), From ! {self(), []}, player([])
       end;
     {From, draw} ->
       case Cards of
-        [C1, C2, C3 | Left] -> From ! {self(), [C1, C2, C3]}, player(Left);
+        [C1, C2, C3 | Left] -> From ! {self(), [C3, C2, C1]}, player(Left);
         _ -> From ! {self(), Cards}, player([])
       end;
     {_, {take, WinCards}} ->

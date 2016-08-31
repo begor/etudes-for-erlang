@@ -8,7 +8,7 @@ make_deck() ->
   [{R, S} || R <- Ranks, S <- Suits].
 
 make_small_deck() ->
-  Suits = ["Clubs", "Diamonds", "Hearts", "Spades"],
+  Suits = ["Clubs", "Hearts"],
   Ranks = [2, 3, "K", "A"],
   [{R, S} || R <- Ranks, S <- Suits].
 
