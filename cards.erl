@@ -1,10 +1,15 @@
 -module(cards).
--export([make_deck/0, shuffle/1]).
+-export([make_deck/0, shuffle/1, rank/1, make_small_deck/0]).
 
 %% @doc Generate a deck of cards as a list 52 tuples.
 make_deck() ->
   Suits = ["Clubs", "Diamonds", "Hearts", "Spades"],
   Ranks = [2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K", "A"],
+  [{R, S} || R <- Ranks, S <- Suits].
+
+make_small_deck() ->
+  Suits = ["Clubs", "Diamonds"],
+  Ranks = [2, 3, 4, 5],
   [{R, S} || R <- Ranks, S <- Suits].
 
 %% @doc Shuffles a list of cards.
@@ -19,5 +24,10 @@ shuffle(List) -> shuffle(List, []).
 shuffle([], Acc) -> Acc;
 shuffle(List, Acc) ->
   {Leading, [H | T]} = lists:split(random:uniform(length(List)) - 1, List),
-  io:format("Lead:~p~nH:~p~nT:~p~n", [Leading, H, T]),
   shuffle(Leading ++ T, [H | Acc]).
+
+rank("A") -> 14;
+rank("K") -> 13;
+rank("Q") -> 12;
+rank("J") -> 11;
+rank(N) -> N.
