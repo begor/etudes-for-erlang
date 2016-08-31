@@ -26,6 +26,7 @@ shuffle(List, Acc) ->
   {Leading, [H | T]} = lists:split(random:uniform(length(List)) - 1, List),
   shuffle(Leading ++ T, [H | Acc]).
 
+%% @doc Return a numeric representation of a Rank of Card.
 rank("A") -> 14;
 rank("K") -> 13;
 rank("Q") -> 12;

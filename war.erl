@@ -3,7 +3,7 @@
 %% API
 -export([player/1, start/0]).
 
-%%% GAME TODO: make dealer actor.
+%%% GAME TODO: make dealer actor, named processes
 
 %% @doc Starts a game of war:
 %% 1. Shuffles deck
@@ -43,12 +43,15 @@ compare(A, B, ACards, BCards) ->
   {{ATopCardRank, _}, {BTopCardRank, _}} = {ATopCard, BTopCard},
   if
     ATopCardRank > BTopCardRank ->
+      io:format("A takes~n"),
       A ! {self(), {take, ACards ++ BCards}},
       turn(A, B, turn, 0, [], []);
     ATopCardRank < BTopCardRank ->
+      io:format("B takes~n"),
       B ! {self(), {take, ACards ++ BCards}},
       turn(A, B, turn, 0, [], []);
     true ->
+      io:format("Draw~n"),
       turn(A, B, draw, 0, ACards, BCards)
   end.
 
