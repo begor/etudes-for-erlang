@@ -11,42 +11,26 @@
 %% 3. Give player a half of a deck
 %% 4. Proceeds to first turn
 start() ->
-  Deck = cards:shuffle(cards:make_small_deck()),
+  Deck = cards:shuffle(cards:make_deck()),
   {PlayerACards, PlayerBCards} = lists:split(length(Deck) div 2, Deck),
   PlayerA = spawn(?MODULE, player, [PlayerACards]),
   PlayerB = spawn(?MODULE, player, [PlayerBCards]),
-  turn(PlayerA, PlayerB, 0, [], []).
+  turn(PlayerA, PlayerB, turn, 0, [], []).
 
 %% @doc Gets Cards from Players A and B, then proceeds to battle.
-turn(A, B,  0, ACards, BCards) ->
-  A ! {self(), turn},
-  B ! {self(), turn},
+turn(A, B, Type, 0, ACards, BCards) ->
+  A ! {self(), Type},
+  B ! {self(), Type},
   receive
-    {A, Cards} -> turn(A, B, 1, Cards ++ ACards, BCards);
-    {B, Cards} -> turn(A, B, 1, ACards, Cards ++ BCards)
+    {A, Cards} -> turn(A, B, Type, 1, Cards ++ ACards, BCards);
+    {B, Cards} -> turn(A, B, Type, 1, ACards, Cards ++ BCards)
   end;
-turn(A, B, 1, ACards, BCards) ->
+turn(A, B, Type, 1, ACards, BCards) ->
   receive
-    {A, Cards} -> turn(A, B, 2, Cards ++ ACards, BCards);
-    {B, Cards} -> turn(A, B, 2, ACards, Cards ++ BCards)
+    {A, Cards} -> turn(A, B, Type, 2, Cards ++ ACards, BCards);
+    {B, Cards} -> turn(A, B, Type, 2, ACards, Cards ++ BCards)
   end;
-turn(A, B, 2, ACards, BCards) -> battle(A, B, ACards, BCards).
-
-%% @doc Gets three additional cards from players in case of draw.
-draw(A, B, 0, ACards, BCards) ->
-  A ! {self(), draw},
-  B ! {self(), draw},
-  receive
-    {A, Cards} -> draw(A, B, 1, Cards ++ ACards, BCards);
-    {B, Cards} -> draw(A, B, 1, ACards, Cards ++ BCards)
-  end;
-draw(A, B, 1, ACards, BCards) ->
-  receive
-    {A, Cards} -> draw(A, B, 2, Cards ++ ACards, BCards);
-    {B, Cards} -> draw(A, B, 2, ACards, Cards ++ BCards)
-  end;
-draw(A, B, 2, ACards, BCards) ->
-  battle(A, B, ACards, BCards).
+turn(A, B, _, 2, ACards, BCards) -> battle(A, B, ACards, BCards).
 
 %% @doc Gets Cards of two players, pick first of each pile and compares.
 battle(A, B, [], _BCards) -> win(B, A);
@@ -60,12 +44,12 @@ compare(A, B, ACards, BCards) ->
   if
     ATopCardRank > BTopCardRank ->
       A ! {self(), {take, ACards ++ BCards}},
-      turn(A, B, 0, [], []);
+      turn(A, B, turn, 0, [], []);
     ATopCardRank < BTopCardRank ->
       B ! {self(), {take, ACards ++ BCards}},
-      turn(A, B, 0, [], []);
+      turn(A, B, turn, 0, [], []);
     true ->
-      draw(A, B, 0, ACards, BCards)
+      turn(A, B, draw, 0, ACards, BCards)
   end.
 
 %% @doc Sends messages about winning and loosing.
