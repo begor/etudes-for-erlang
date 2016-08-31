@@ -15,65 +15,55 @@ start() ->
   {PlayerACards, PlayerBCards} = lists:split(length(Deck) div 2, Deck),
   PlayerA = spawn(?MODULE, player, [PlayerACards]),
   PlayerB = spawn(?MODULE, player, [PlayerBCards]),
-  get_cards(PlayerA, PlayerB, 0, [], []).
+  turn(PlayerA, PlayerB, 0, [], []).
 
 %% @doc Gets Cards from Players A and B, then proceeds to battle.
-get_cards(A, B, 0, [], []) ->
-  A ! {self(), send_one},
-  B ! {self(), send_one},
+turn(A, B,  0, ACards, BCards) ->
+  A ! {self(), turn},
+  B ! {self(), turn},
   receive
-    {A, no_card} -> win(B, A);
-    {A, Card} -> get_cards(A, B, 1, [Card], []);
-    {B, no_card} -> win(A, B);
-    {B, Card} -> get_cards(A, B, 1, [], [Card])
+    {A, Cards} -> turn(A, B, 1, Cards ++ ACards, BCards);
+    {B, Cards} -> turn(A, B, 1, ACards, Cards ++ BCards)
   end;
-get_cards(A, B, 1, ACards, BCards) ->
+turn(A, B, 1, ACards, BCards) ->
   receive
-    {A, no_card} -> win(B, A);
-    {A, Card} -> get_cards(A, B, 2, [Card | ACards], BCards);
-    {B, no_card} -> win(A, B);
-    {B, Card} -> get_cards(A, B, 2, ACards, [Card | BCards])
+    {A, Cards} -> turn(A, B, 2, Cards ++ ACards, BCards);
+    {B, Cards} -> turn(A, B, 2, ACards, Cards ++ BCards)
   end;
-get_cards(A, B, 2, ACards, BCards) -> battle(A, B, ACards, BCards).
-
-%% @doc Gets Cards of two players, pick first of each pile and compares.
-battle(A, B, ACards, BCards) ->
-  [{AR, _} | _] = ACards, [{BR, _} | _] = BCards,
-  Arank = cards:rank(AR),
-  Brank = cards:rank(BR),
-  compare(A, B, ACards, BCards, Arank, Brank).
+turn(A, B, 2, ACards, BCards) -> battle(A, B, ACards, BCards).
 
 %% @doc Gets three additional cards from players in case of draw.
 draw(A, B, 0, ACards, BCards) ->
   A ! {self(), draw},
   B ! {self(), draw},
   receive
-    {A, []} -> win(B, A);
     {A, Cards} -> draw(A, B, 1, Cards ++ ACards, BCards);
-    {B, []} -> win(A, B);
     {B, Cards} -> draw(A, B, 1, ACards, Cards ++ BCards)
   end;
 draw(A, B, 1, ACards, BCards) ->
   receive
-    {A, []} -> win(B, A);
     {A, Cards} -> draw(A, B, 2, Cards ++ ACards, BCards);
-    {B, []} -> win(A, B);
     {B, Cards} -> draw(A, B, 2, ACards, Cards ++ BCards)
   end;
 draw(A, B, 2, ACards, BCards) ->
-  [{AR, _} | _] = ACards, [{BR, _} | _] = BCards,
-  Arank = cards:rank(AR), Brank = cards:rank(BR),
-  compare(A, B, ACards, BCards, Arank, Brank).
+  battle(A, B, ACards, BCards).
+
+%% @doc Gets Cards of two players, pick first of each pile and compares.
+battle(A, B, [], _BCards) -> win(B, A);
+battle(A, B, _ACards, []) -> win(A, B);
+battle(A, B, ACards, BCards) -> compare(A, B, ACards, BCards).
 
 %% @doc Compares cards and decide which player wins this battle.
-compare(A, B, ACards, BCards, Arank, Brank) ->
+compare(A, B, ACards, BCards) ->
+  [ATopCard|_] = ACards, [BTopCard|_] = BCards,
+  {{ATopCardRank, _}, {BTopCardRank, _}} = {ATopCard, BTopCard},
   if
-    Arank > Brank ->
+    ATopCardRank > BTopCardRank ->
       A ! {self(), {take, ACards ++ BCards}},
-      get_cards(A, B, 0, [], []);
-    Arank < Brank ->
+      turn(A, B, 0, [], []);
+    ATopCardRank < BTopCardRank ->
       B ! {self(), {take, ACards ++ BCards}},
-      get_cards(A, B, 0, [], []);
+      turn(A, B, 0, [], []);
     true ->
       draw(A, B, 0, ACards, BCards)
   end.
@@ -88,10 +78,10 @@ win(X, Y) ->
 player(Cards) ->
   io:format("I am ~p, and I have ~p~n", [self(), Cards]),
   receive
-    {From, send_one} ->
+    {From, turn} ->
       case Cards of
-        [Card | Left] -> From ! {self(), Card}, player(Left);
-        [] -> From ! {self(), no_card}, player([])
+        [Card | Left] -> From ! {self(), [Card]}, player(Left);
+        [] -> From ! {self(), []}, player([])
       end;
     {From, draw} ->
       case Cards of
@@ -100,6 +90,6 @@ player(Cards) ->
       end;
     {_, {take, WinCards}} ->
       player(Cards ++ WinCards);
-    {_, win} -> io:format("I ~p win!", [self()]);
-    {_, lose} -> io:format("I ~p lose :(", [self()])
+    {_, win} -> io:format("I ~p win!~n", [self()]);
+    {_, lose} -> io:format("I ~p lose :(~n", [self()])
   end.
