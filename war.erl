@@ -1,16 +1,18 @@
 -module(war).
 
 %% API
--export([player/1, start/0]).
+-export([play_game/0, player/1, dealer/0]).
 
-%%% GAME TODO: make dealer actor, named processes
+%% @doc Spawns dealer process.
+play_game() ->
+  spawn(?MODULE, dealer, []).
 
 %% @doc Starts a game of war:
 %% 1. Shuffles deck
 %% 2. Spawns players
 %% 3. Give player a half of a deck
 %% 4. Proceeds to first turn
-start() ->
+dealer() ->
   Deck = cards:shuffle(cards:make_small_deck()),
   {PlayerACards, PlayerBCards} = lists:split(length(Deck) div 2, Deck),
   PlayerA = spawn(?MODULE, player, [PlayerACards]),
