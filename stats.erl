@@ -1,4 +1,4 @@
--module (stats).
+-module(stats).
 -export([minimum/1, maximum/1, range/1, mean/1, stdv/1, test/0]).
 
 %% @doc Searches for a minimum element in a List.
@@ -6,7 +6,7 @@ minimum(List) ->
   try
     minimum(hd(List), tl(List))
   catch
-      error:Reason -> {error, Reason}
+    error:Reason -> {error, Reason}
   end.
 
 %% @doc Searches for a maximum element in a List.
@@ -18,22 +18,22 @@ maximum(List) ->
   end.
 
 %% @doc Returns a list of minimum and maximum entries in the list.
-range([H|Tl]) -> [minimum(H, Tl), maximum(H, Tl)].  
+range([H | Tl]) -> [minimum(H, Tl), maximum(H, Tl)].
 
 minimum(Min, []) -> Min;
-minimum(Min, [H|Tl]) when Min < H -> minimum(Min, Tl);
-minimum(_, [H|Tl]) -> minimum(H, Tl).
+minimum(Min, [H | Tl]) when Min < H -> minimum(Min, Tl);
+minimum(_, [H | Tl]) -> minimum(H, Tl).
 
 maximum(Max, []) -> Max;
-maximum(Max, [H|Tl]) when Max > H -> maximum(Max, Tl);
-maximum(_, [H|Tl]) -> maximum(H, Tl).
+maximum(Max, [H | Tl]) when Max > H -> maximum(Max, Tl);
+maximum(_, [H | Tl]) -> maximum(H, Tl).
 
 %% @doc Calculates the mean for a list of Numbers.
 mean(Numbers) ->
   try
     lists:foldl(fun(X, Y) -> X + Y end, 0, Numbers) / length(Numbers)
   catch
-      error:Reason  -> {error, Reason}
+    error:Reason -> {error, Reason}
   end.
 
 %% @doc Calculates the standard deviation of Numbers.
@@ -43,7 +43,7 @@ stdv(Numbers) ->
     {Sum, SumSquares} = lists:foldl(fun(X, {Sum, SumSqr}) -> {Sum + X, SumSqr + X * X} end, {0, 0}, Numbers),
     math:sqrt((N * SumSquares - Sum * Sum) / (N * (N - 1)))
   catch
-      error:Reason  -> {error, Reason}
+    error:Reason -> {error, Reason}
   end.
 
 

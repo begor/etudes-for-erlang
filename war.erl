@@ -41,7 +41,7 @@ battle(A, B, ACards, BCards) -> compare(A, B, ACards, BCards).
 
 %% @doc Compares cards and decide which player wins this battle.
 compare(A, B, ACards, BCards) ->
-  [ATopCard|_] = ACards, [BTopCard|_] = BCards,
+  [ATopCard | _] = ACards, [BTopCard | _] = BCards,
   {{ATopCardRank, _}, {BTopCardRank, _}} = {ATopCard, BTopCard},
   if
     ATopCardRank > BTopCardRank ->

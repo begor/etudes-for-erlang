@@ -1,20 +1,20 @@
--module (dates).
+-module(dates).
 -export([date_parts/1, julian/1, test/0]).
 
 %% @doc Given a string in ISO date format
 %% return a list of integers [Year, Month, day]
 date_parts(DateString) ->
-	[Y, M, D] = re:split(DateString, "-", [{return, list}]),
-	
-	[element(1, string:to_integer(Y)),
-	 element(1, string:to_integer(M)),
-	 element(1, string:to_integer(D))].
+  [Y, M, D] = re:split(DateString, "-", [{return, list}]),
+
+  [element(1, string:to_integer(Y)),
+    element(1, string:to_integer(M)),
+    element(1, string:to_integer(D))].
 
 %% @doc Given a string in ISO format ( "yyyy-mm-dd" ), 
 %% it returns the Julian date: the day of the year.
 julian(DateString) ->
-	DaysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
-	[Y, M, D] = date_parts(DateString),
+  DaysPerMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+  [Y, M, D] = date_parts(DateString),
   {MonthsPassed, _} = lists:split(M - 1, DaysPerMonth),
   DaysUntilCurrentMonth = lists:foldl(fun(Days, Acc) -> Days + Acc end, 0, MonthsPassed),
   case is_leap_year(Y) andalso M > 2 of
@@ -36,4 +36,4 @@ test() ->
 %% @doc Given a year, return true or false depending on whether
 %% the year is a leap year.
 is_leap_year(Year) ->
-	(Year rem 4 == 0 andalso Year rem 100 /= 0) orelse (Year rem 400 == 0).
+  (Year rem 4 == 0 andalso Year rem 100 /= 0) orelse (Year rem 400 == 0).

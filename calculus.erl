@@ -1,5 +1,5 @@
--module (calculus).
--export ([deriviative/2]).
+-module(calculus).
+-export([deriviative/2]).
 
 %% @doc Calculates deriviative of a function F
 %% in the point X.
